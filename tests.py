@@ -11,9 +11,8 @@ class PluginTestCase(unittest.TestCase):
 
     def setUp(self):
         self.loader = StraightPluginLoader()
-        self.added_path = os.path.join(os.path.dirname(__file__), 'more-test-plugins')
-        self.added_path = os.path.join(os.path.dirname(__file__), 'some-test-plugins')
-        sys.path.append(self.added_path)
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'more-test-plugins'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'some-test-plugins'))
 
     def tearDown(self):
         del sys.path[-1]
