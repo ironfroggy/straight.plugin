@@ -23,8 +23,8 @@ class StraightPluginLoader(object):
             namespace_path = os.path.join(path, namespace_rel_path)
             if os.path.exists(namespace_path):
                 for possible in os.listdir(namespace_path):
-                    base = os.path.splitext(possible)[0]
-                    if base == '__init__':
+                    base, ext = os.path.splitext(possible)
+                    if base == '__init__' or ext != '.py':
                         continue
                     if base not in already_seen:
                         already_seen.add(base)
