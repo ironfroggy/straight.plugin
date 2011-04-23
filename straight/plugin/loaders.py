@@ -36,7 +36,16 @@ class ModuleLoader(object):
             path_segments = [p for p in path_segments if p]
             path_segments[-1] = os.path.splitext(path_segments[-1])[0]
             import_path = '.'.join(path_segments)
-            yield import_module(import_path)
+
+            try:
+                module = import_module(import_path)
+            except ImportError:
+                raise Exception(import_path)
+
+                module = None
+
+            if module is not None:
+                yield module
 
     def load(self, namespace):
         """Load all modules found in a namespace"""
@@ -66,4 +75,19 @@ class ObjectLoader(object):
                     objects.append(getattr(module, attr_name))
     
         return objects
+
+
+class ClassLoader(ObjectLoader):
+
+    def load(self, namespace, subclasses=None):
+        objects = super(ClassLoader, self).load(namespace)
+        classes = []
+        for cls in objects:
+            if isinstance(cls, type):
+                if subclasses is None:
+                    classes.append(cls)
+                elif issubclass(cls, subclasses) and cls is not subclasses:
+                    classes.append(cls)
+
+        return classes
 
