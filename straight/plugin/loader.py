@@ -39,6 +39,8 @@ class StraightPluginLoader(object):
             yield import_module(import_path)
 
     def load(self, namespace):
+        """Load all modules found in a namespace"""
+
         modules = self._findPluginModules(namespace)
 
         return list(modules)
