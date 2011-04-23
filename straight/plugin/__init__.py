@@ -1,6 +1,6 @@
-from straight.plugin.loader import StraightPluginLoader
+from straight.plugin import loaders
 
 
-_loader = StraightPluginLoader()
+_loader = loaders.ModuleLoader()
 
 load = _loader.load

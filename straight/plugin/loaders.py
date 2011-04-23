@@ -6,7 +6,7 @@ import os
 from importlib import import_module
 
 
-class StraightPluginLoader(object):
+class ModuleLoader(object):
     """Performs the work of locating and loading straight plugins.
     
     This looks for plugins in every location in the import path.
@@ -44,3 +44,25 @@ class StraightPluginLoader(object):
         modules = self._findPluginModules(namespace)
 
         return list(modules)
+
+
+class ObjectLoader(object):
+    """Loads classes or objects out of modules in a namespace, based on a
+    provided criteria.
+   
+    The load() method returns all objects exported by the module.
+    """
+
+    def __init__(self):
+        self.module_loader = ModuleLoader()
+
+    def load(self, namespace):
+        modules = self.module_loader.load(namespace)
+        objects = []
+
+        for module in modules:
+            for attr_name in dir(module):
+                if not attr_name.startswith('_'):
+                    objects.append(getattr(module, attr_name))
+    
+        return objects
