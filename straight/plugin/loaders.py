@@ -66,3 +66,4 @@ class ObjectLoader(object):
                     objects.append(getattr(module, attr_name))
     
         return objects
+

@@ -11,8 +11,8 @@ class ModuleLoaderTestCase(unittest.TestCase):
 
     def setUp(self):
         self.loader = loaders.ModuleLoader()
-        sys.path.append(os.path.join(os.path.dirname(__file__), 'more-test-plugins'))
-        sys.path.append(os.path.join(os.path.dirname(__file__), 'some-test-plugins'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'test-packages', 'more-test-plugins'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'test-packages', 'some-test-plugins'))
 
     def tearDown(self):
         del sys.path[-1]
@@ -30,8 +30,8 @@ class SelectiveLoaderTestCase(unittest.TestCase):
 
     def setUp(self):
         self.loader = loaders.ObjectLoader()
-        sys.path.append(os.path.join(os.path.dirname(__file__), 'more-test-plugins'))
-        sys.path.append(os.path.join(os.path.dirname(__file__), 'some-test-plugins'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'test-packages', 'more-test-plugins'))
+        sys.path.append(os.path.join(os.path.dirname(__file__), 'test-packages', 'some-test-plugins'))
 
     def tearDown(self):
         del sys.path[-1]
