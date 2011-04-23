@@ -26,7 +26,7 @@ class ModuleLoaderTestCase(unittest.TestCase):
         assert self.loader.load('testplugin')[0].do(1) == 2
 
 
-class SelectiveLoaderTestCase(unittest.TestCase):
+class ObjectLoaderTestCase(unittest.TestCase):
 
     def setUp(self):
         self.loader = loaders.ObjectLoader()
