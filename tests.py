@@ -46,6 +46,21 @@ class ModuleLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         assert self.loader.load('testplugin')[0].do(1) == 2
 
 
+class ModuleLoaderHooksTestCase(LoaderTestCaseMixin, unittest.TestCase):
+
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'module-hook-test-plugins'),
+    )
+    
+    def setUp(self):
+        self.loader = loaders.ModuleLoader()
+        super(ModuleLoaderHooksTestCase, self).setUp()
+
+    def test_hook_used(self):
+        result = list(self.loader.load('testplugin'))
+        self.assertEqual(result[0], "returned from hook")
+
+
 class ObjectLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (

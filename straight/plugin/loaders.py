@@ -45,7 +45,15 @@ class ModuleLoader(object):
                 module = None
 
             if module is not None:
-                yield module
+                try:
+                    hook = module.__plugin_hook__
+                except AttributeError:
+                    hook = None
+
+                if hook is None:
+                    yield module
+                else:
+                    yield hook()
 
     def load(self, namespace):
         """Load all modules found in a namespace"""
