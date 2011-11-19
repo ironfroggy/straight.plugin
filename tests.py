@@ -92,7 +92,7 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     )
 
     def setUp(self):
-        self.loader = loaders.PackageLoader()
+        self.loader = loaders.ModuleLoader()
         super(PackageLoaderTestCase, self).setUp()
     
     def test_find_packages(self):
