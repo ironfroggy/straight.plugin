@@ -23,9 +23,18 @@ class ModuleLoader(object):
             namespace_path = os.path.join(path, namespace_rel_path)
             if os.path.exists(namespace_path):
                 for possible in os.listdir(namespace_path):
-                    base, ext = os.path.splitext(possible)
-                    if base == '__init__' or ext != '.py':
-                        continue
+
+                    if os.path.isdir(os.path.join(namespace_path, possible)):
+                        pkg_init = os.path.join(namespace_path, possible, '__init__.py')
+                        if not os.path.exists(pkg_init):
+                            continue
+                        
+                        base = possible
+                    else:
+                        base, ext = os.path.splitext(possible)
+                        if base == '__init__' or ext != '.py':
+                            continue
+                    
                     if base not in already_seen:
                         already_seen.add(base)
                         yield os.path.join(namespace, possible)
@@ -90,31 +99,3 @@ class ClassLoader(ObjectLoader):
                     classes.append(cls)
 
         return classes
-
-
-class PackageLoader(ModuleLoader):
-    """Loads plugins that are packages in the given namespace.
-
-    """
-    def _findPluginFilePaths(self, namespace):
-        already_seen = set()
-
-        # Look in each location in the path
-        for path in sys.path:
-
-            # Within this, we want to look for a package for the namespace
-            namespace_rel_path = namespace.replace(".", os.path.sep)
-            namespace_path = os.path.join(path, namespace_rel_path)
-            if os.path.exists(namespace_path):
-                for possible in os.listdir(namespace_path):
-
-                    # check that possible contains an __init__.py
-                    init = os.path.join(namespace_path, possible, '__init__.py')
-                    if not os.path.exists(init):
-                        # not a package. skip
-                        continue
-                    
-                    # yield plugin package
-                    if possible not in already_seen:
-                        already_seen.add(possible)
-                        yield os.path.join(namespace, possible)
