@@ -106,13 +106,14 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         self.assertEqual(len(packages), 2)
 
         for pkg in packages:
-            self.assertIsInstance(pkg, ModuleType)
+            self.assertTrue(isinstance(pkg, ModuleType))
     
     def test_plugin(self):
-        plugins = list(self.loader.load('testplugin'))
+        plugins = self.loader.load('testplugin')
 
-        self.assertEqual(plugins[0].do(1), 3)
-        self.assertEqual(plugins[1].do(1), 2)
+        results = set(p.do(1) for p in plugins)
+
+        self.assertEqual(results, set((2, 3)))
 
 if __name__ == '__main__':
     unittest.main()
