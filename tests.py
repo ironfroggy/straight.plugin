@@ -111,8 +111,7 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     def test_plugin(self):
         plugins = list(self.loader.load('testplugin'))
 
-        self.assertEqual(plugins[0].do(1), 3)
-        self.assertEqual(plugins[1].do(1), 2)
+        self.assertEqual({p.do(1) for p in plugins}, set([3, 2]))
 
 if __name__ == '__main__':
     unittest.main()
