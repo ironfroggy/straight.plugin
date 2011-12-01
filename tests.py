@@ -85,6 +85,22 @@ class ClassLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         self.assertEqual(len(classes), 1)
         self.assertTrue(classes[0] is testclasses.A1)
 
+class PriorityLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'class-test-plugins'),
+    )
+
+    def setUp(self):
+        self.loader = loaders.ClassLoader()
+        super(PriorityLoaderTestCase, self).setUp()
+
+    def test_all_classes(self):
+        classes = list(self.loader.load('testplugin'))
+
+        self.assertEqual(classes[0].__name__, 'B')
+        self.assertEqual(classes[1].__name__, 'A')
+        self.assertEqual(classes[2].__name__, 'A1')
 
 class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     paths = (

@@ -6,7 +6,25 @@ import os
 from importlib import import_module
 
 
-class ModuleLoader(object):
+class Loader(object):
+
+    def __init__(self, *args, **kwargs):
+        self._cache = []
+
+    def load(self, *args, **kwargs):
+        self._fill_cache(*args, **kwargs)
+        self._order()
+        return self._cache
+
+    def _order(self):
+        self._cache.sort(key=self._plugin_priority, reverse=True)
+
+    def _plugin_priority(self, plugin):
+        data = getattr(plugin, '__straight_plugin__', None)
+        return getattr(data, 'priority', 0.0)
+
+
+class ModuleLoader(Loader):
     """Performs the work of locating and loading straight plugins.
     
     This looks for plugins in every location in the import path.
@@ -56,15 +74,15 @@ class ModuleLoader(object):
             if module is not None:
                 yield module
 
-    def load(self, namespace):
+    def _fill_cache(self, namespace):
         """Load all modules found in a namespace"""
 
         modules = self._findPluginModules(namespace)
 
-        return list(modules)
+        self._cache = list(modules)
 
 
-class ObjectLoader(object):
+class ObjectLoader(Loader):
     """Loads classes or objects out of modules in a namespace, based on a
     provided criteria.
    
@@ -74,7 +92,7 @@ class ObjectLoader(object):
     def __init__(self):
         self.module_loader = ModuleLoader()
 
-    def load(self, namespace):
+    def _fill_cache(self, namespace):
         modules = self.module_loader.load(namespace)
         objects = []
 
@@ -82,14 +100,15 @@ class ObjectLoader(object):
             for attr_name in dir(module):
                 if not attr_name.startswith('_'):
                     objects.append(getattr(module, attr_name))
-    
+        
+        self._cache = objects
         return objects
 
 
 class ClassLoader(ObjectLoader):
 
-    def load(self, namespace, subclasses=None):
-        objects = super(ClassLoader, self).load(namespace)
+    def _fill_cache(self, namespace, subclasses=None):
+        objects = super(ClassLoader, self)._fill_cache(namespace)
         classes = []
         for cls in objects:
             if isinstance(cls, type):
@@ -98,4 +117,4 @@ class ClassLoader(ObjectLoader):
                 elif issubclass(cls, subclasses) and cls is not subclasses:
                     classes.append(cls)
 
-        return classes
+        self._cache = classes
