@@ -53,3 +53,19 @@ how I need to use it in my project.
             return log_entry
         else:
             raise Skip()
+
+## Module and Class Plugins
+
+straight.plugin is able to load both modules and classes, depending on your
+needs. When you call `load()` with a namespace, you'll get all the modules
+found under that namespace. When you call it with the optional `subclasses`
+parameter, all the classes which are subclases of the given type will be
+given.
+
+    # Example
+
+    from straight.plugins import load
+
+    plugins = load("ircclient", subclasses=IrcClientCommand)
+
+

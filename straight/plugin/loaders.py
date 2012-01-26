@@ -23,9 +23,18 @@ class ModuleLoader(object):
             namespace_path = os.path.join(path, namespace_rel_path)
             if os.path.exists(namespace_path):
                 for possible in os.listdir(namespace_path):
-                    base, ext = os.path.splitext(possible)
-                    if base == '__init__' or ext != '.py':
-                        continue
+
+                    if os.path.isdir(os.path.join(namespace_path, possible)):
+                        pkg_init = os.path.join(namespace_path, possible, '__init__.py')
+                        if not os.path.exists(pkg_init):
+                            continue
+                        
+                        base = possible
+                    else:
+                        base, ext = os.path.splitext(possible)
+                        if base == '__init__' or ext != '.py':
+                            continue
+                    
                     if base not in already_seen:
                         already_seen.add(base)
                         yield os.path.join(namespace, possible)
@@ -98,3 +107,4 @@ def unified_load(namespace, subclasses=None):
         return ClassLoader().load(namespace, subclasses=subclasses)
     else:
         return ModuleLoader().load(namespace)
+

@@ -3,6 +3,7 @@
 import sys
 import os
 import unittest
+from types import ModuleType
 
 from straight.plugin import loaders
 
@@ -84,6 +85,35 @@ class ClassLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         self.assertEqual(len(classes), 1)
         self.assertTrue(classes[0] is testclasses.A1)
 
+
+class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'package-test-plugins'),
+    )
+
+    def setUp(self):
+        self.loader = loaders.ModuleLoader()
+        super(PackageLoaderTestCase, self).setUp()
+    
+    def test_find_packages(self):
+        filepaths = list(self.loader._findPluginFilePaths('testplugin'))
+
+        self.assertEqual(len(filepaths), 2)
+
+    def test_load_packages(self):
+        packages = list(self.loader.load('testplugin'))
+
+        self.assertEqual(len(packages), 2)
+
+        for pkg in packages:
+            self.assertTrue(isinstance(pkg, ModuleType))
+    
+    def test_plugin(self):
+        plugins = self.loader.load('testplugin')
+
+        results = set(p.do(1) for p in plugins)
+
+        self.assertEqual(results, set((2, 3)))
 
 if __name__ == '__main__':
     unittest.main()
