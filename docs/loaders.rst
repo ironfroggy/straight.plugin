@@ -1,8 +1,13 @@
 Plugin Loaders
 ==============
 
-Currently, three simple loaders are providerd.
+Currently, three simple loaders are provided.
 
+* The :ref:`ModuleLoader <moduleloader>` simply loads the modules found
+* The :ref:`ClassLoader <classloader>` loads the subclasses of a given type
+* The :ref:`ObjectLoader <objectloader>` loads arbitrary objects from the modules
+
+.. _classloader:
 
 ClassLoader
 -----------
@@ -40,6 +45,7 @@ However, it is preferred that you use the ``load()`` helper provided.
 This will automatically use the ``ClassLoader`` when given a ``subclasses``
 argument.
 
+.. _moduleloader:
 
 ModuleLoader
 ------------
@@ -53,6 +59,7 @@ Before anything else, ``straight.plugin`` loads modules. The
 
     plugins = ModuleLoader().load('myplugins')
 
+.. _objectloader:
 
 ObjectLoader
 ------------
