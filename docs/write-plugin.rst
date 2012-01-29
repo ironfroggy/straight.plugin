@@ -1,7 +1,7 @@
 Writing Plugins
 ===============
 
-Writing plugins is an easy process. Plugins can exist inside your
+Plugins can exist inside your
 existing packages or in special namespace packages, which exist
 only to house plugins.
 
@@ -12,9 +12,12 @@ This allows the namespace to be provided in multiple places on
 the python ``sys.path``, where ``import`` looks, and all the
 contents will be combined.
 
+Use a :term:`namespace package`
+
 This allows multiple packages installed on your system to share
 this name, so they may come from different installed projects
 and all combine to provide a larger set of plugins.
+
 
 Example
 -------
