@@ -99,3 +99,12 @@ class ClassLoader(ObjectLoader):
                     classes.append(cls)
 
         return classes
+
+
+def unified_load(namespace, subclasses=None):
+
+    if subclasses is not None:
+        return ClassLoader().load(namespace, subclasses=subclasses)
+    else:
+        return ModuleLoader().load(namespace)
+

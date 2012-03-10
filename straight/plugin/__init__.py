@@ -1,6 +1,4 @@
 from straight.plugin import loaders
 
 
-_loader = loaders.ModuleLoader()
-
-load = _loader.load
+load = loaders.unified_load
