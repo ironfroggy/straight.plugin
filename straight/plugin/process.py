@@ -9,12 +9,18 @@ def _proxy_main(pipe):
 class PluginProxy(object):
     """Manages a plugin running in an external process."""
 
-    def __init__(self):
+    def __init__(self, path):
         self.parent_conn, self.child_conn = Pipe()
         self.process = Process(target=_proxy_main, args=(self.child_conn,))
         self.process.start()
         self._inst_num = 0
         self._callbacks = {}
+
+        self.ready = False
+        self._send_instruction('import', (path,), {}, self._import_check)
+
+    def _import_check(self, ready):
+        self.ready = ready
 
     def _send_instruction(self, inst, args, kwargs, callback=None):
         self._inst_num += 1
@@ -32,7 +38,7 @@ class PluginProxy(object):
                 return
             callback(resp)
 
-    def handle_responses(self):
+    def _handle_responses(self):
         while self.parent_conn.poll():
             self._handle_one_response()
 
@@ -41,7 +47,7 @@ class PluginProxyChild(object):
 
     def __init__(self, pipe):
         self.pipe = pipe
-        self.modules = []
+        self.module = None
 
     def run(self):
         while True:
@@ -52,4 +58,14 @@ class PluginProxyChild(object):
 
     def inst_echo(self, x):
         return x
+
+    def inst_import(self, path):
+        try:
+            self.module = import_module(path)
+            return True
+        except ImportError:
+            return False
+
+    def inst_ready(self):
+        return self.module is not None
 
