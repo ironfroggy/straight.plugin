@@ -16,6 +16,9 @@ Contents:
    Glossary <glossary>
 
 
+Full Documentation: http://readthedocs.org/docs/straightplugin/
+Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
+
 Overview
 ========
 
