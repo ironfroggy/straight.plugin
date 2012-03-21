@@ -1,3 +1,6 @@
+Full Documentation: http://readthedocs.org/docs/straightplugin/
+Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
+
 # straight.plugin
 
 straight.plugin is a Python plugin loader inspired by twisted.plugin with two
