@@ -47,6 +47,22 @@ class ModuleLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         assert self.loader.load('testplugin')[0].do(1) == 2
 
 
+class ImplyLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'imply-plugins'),
+    )
+    
+    def setUp(self):
+        self.loader = loaders.ModuleLoader()
+        super(ImplyLoaderTestCase, self).setUp()
+    
+    def test_load(self):
+        modules = list(self.loader.load('testplugin'))
+        assert len(modules) == 1, modules
+        assert modules[0].__name__ == 'testplugin_2.bar', modules[0].__name__
+
+
 class ObjectLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (
@@ -85,6 +101,22 @@ class ClassLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         self.assertEqual(len(classes), 1)
         self.assertTrue(classes[0] is testclasses.A1)
 
+class PriorityLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'class-test-plugins'),
+    )
+
+    def setUp(self):
+        self.loader = loaders.ClassLoader()
+        super(PriorityLoaderTestCase, self).setUp()
+
+    def test_all_classes(self):
+        classes = list(self.loader.load('testplugin'))
+
+        self.assertEqual(classes[0].__name__, 'B')
+        self.assertEqual(classes[1].__name__, 'A')
+        self.assertEqual(classes[2].__name__, 'A1')
 
 class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     paths = (
