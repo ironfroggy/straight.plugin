@@ -4,6 +4,7 @@ import sys
 import os
 
 from importlib import import_module
+from imp import find_module
 
 
 class Loader(object):
@@ -46,6 +47,13 @@ class ModuleLoader(Loader):
     This looks for plugins in every location in the import path.
     """
 
+    def _isPackage(self, path):
+        pkg_init = os.path.join(path, '__init__.py')
+        if os.path.exists(pkg_init):
+            return True
+
+        return False
+
     def _findPluginFilePaths(self, namespace):
         already_seen = set()
 
@@ -58,11 +66,10 @@ class ModuleLoader(Loader):
             if os.path.exists(namespace_path):
                 for possible in os.listdir(namespace_path):
 
-                    if os.path.isdir(os.path.join(namespace_path, possible)):
-                        pkg_init = os.path.join(namespace_path, possible, '__init__.py')
-                        if not os.path.exists(pkg_init):
+                    poss_path = os.path.join(namespace_path, possible)
+                    if os.path.isdir(poss_path):
+                        if not self._isPackage(poss_path):
                             continue
-                        
                         base = possible
                     else:
                         base, ext = os.path.splitext(possible)
@@ -83,7 +90,7 @@ class ModuleLoader(Loader):
             try:
                 module = import_module(import_path)
             except ImportError:
-                raise Exception(import_path)
+                #raise Exception(import_path)
 
                 module = None
 

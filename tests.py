@@ -7,6 +7,37 @@ from types import ModuleType
 
 from straight.plugin import loaders
 
+try:
+    skipIf = unittest.skipIf
+except AttributeError:
+    import functools
+
+    class SkipTest(Exception):
+        """
+        Raise this exception in a test to skip it.
+
+        Usually you can use TestResult.skip() or one of the skipping decorators
+        instead of raising this directly.
+        """
+    def skipIf(cond, reason):
+        """
+        Unconditionally skip a test.
+        """
+        def decorator(test_item):
+            if cond:
+                if not isinstance(test_item, type):
+                    @functools.wraps(test_item)
+                    def skip_wrapper(*args, **kwargs):
+                        pass
+                    test_item = skip_wrapper
+
+                test_item.__unittest_skip__ = True
+                test_item.__unittest_skip_why__ = reason
+                return test_item
+            else:
+                return test_item
+        return decorator
+
 
 class LoaderTestCaseMixin(object):
 
@@ -45,6 +76,27 @@ class ModuleLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     def test_plugin(self):
         assert self.loader.load('testplugin')[0].do(1) == 2
+
+
+class ImpliedNamespaceModuleTestCase(LoaderTestCaseMixin, unittest.TestCase):
+
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'pep-420-plugins'),
+    )
+    
+    def setUp(self):
+        self.loader = loaders.ModuleLoader()
+        super(ImpliedNamespaceModuleTestCase, self).setUp()
+    
+    @skipIf(sys.version_info < (3, 3),"Python < 3.3")
+    def test_load(self):
+        modules = list(self.loader.load('testplugin'))
+        assert len(modules) == 1, modules
+
+    @skipIf(sys.version_info < (3, 3), "Python < 3.3")
+    def test_plugin(self):
+        r = self.loader.load('testplugin')[0].do("implied namespace packages are")
+        self.assertEqual(r, "implied namespace packages are from pep-420")
 
 
 class ImplyLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
