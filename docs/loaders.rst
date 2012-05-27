@@ -59,7 +59,7 @@ Before anything else, ``straight.plugin`` loads modules. The
 
     plugins = ModuleLoader().load('myplugins')
 
-A note about `PEP-420 <http://www.python.org/dev/peps/pep-0420/>`:
+A note about `PEP-420 <http://www.python.org/dev/peps/pep-0420/>`_:
 
 Python 3.3 will support a new type of package, the Namespace Package. This
 allows language-level support for the namespaces that make ``straight.plugin``
