@@ -59,6 +59,15 @@ Before anything else, ``straight.plugin`` loads modules. The
 
     plugins = ModuleLoader().load('myplugins')
 
+A note about `PEP-420 <http://www.python.org/dev/peps/pep-0420/>`:
+
+Python 3.3 will support a new type of package, the Namespace Package. This
+allows language-level support for the namespaces that make ``straight.plugin``
+work and when 3.3 lands, you can create addition plugins to be found in a
+namespace. For now, continue to use the ``pkgutil`` boilerplate, but when
+3.3 is released, ``straight.plugin`` already supports both forms of
+namespace package!
+
 .. _objectloader:
 
 ObjectLoader
