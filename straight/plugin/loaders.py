@@ -47,6 +47,10 @@ class ModuleLoader(Loader):
     This looks for plugins in every location in the import path.
     """
 
+    def __init__(self, recurse=False):
+        super(ModuleLoader, self).__init__()
+        self.recurse = recurse
+
     def _isPackage(self, path):
         pkg_init = os.path.join(path, '__init__.py')
         if os.path.exists(pkg_init):
@@ -70,6 +74,10 @@ class ModuleLoader(Loader):
                     if os.path.isdir(poss_path):
                         if not self._isPackage(poss_path):
                             continue
+                        if self.recurse:
+                            subns = '.'.join((namespace, possible))
+                            for path in self._findPluginFilePaths(subns):
+                                yield path
                         base = possible
                     else:
                         base, ext = os.path.splitext(possible)
@@ -144,10 +152,10 @@ class ClassLoader(ObjectLoader):
         return classes
 
 
-def unified_load(namespace, subclasses=None):
+def unified_load(namespace, subclasses=None, recurse=False):
 
     if subclasses is not None:
-        return ClassLoader().load(namespace, subclasses=subclasses)
+        return ClassLoader(recurse=recurse).load(namespace, subclasses=subclasses)
     else:
-        return ModuleLoader().load(namespace)
+        return ModuleLoader(recurse=recurse).load(namespace)
 

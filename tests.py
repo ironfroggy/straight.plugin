@@ -182,22 +182,54 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     def test_find_packages(self):
         filepaths = list(self.loader._findPluginFilePaths('testplugin'))
 
-        self.assertEqual(len(filepaths), 2)
+        self.assertEqual(len(filepaths), 3)
+
 
     def test_load_packages(self):
         packages = list(self.loader.load('testplugin'))
 
-        self.assertEqual(len(packages), 2)
+        self.assertEqual(len(packages), 3)
 
         for pkg in packages:
             self.assertTrue(isinstance(pkg, ModuleType))
-    
+
     def test_plugin(self):
         plugins = self.loader.load('testplugin')
 
         results = set(p.do(1) for p in plugins)
 
-        self.assertEqual(results, set((2, 3)))
+        self.assertEqual(results, set((2, 3, 4)))
+
+
+class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'package-test-plugins'),
+    )
+
+    def setUp(self):
+        self.loader = loaders.ModuleLoader(recurse=True)
+        super(RecursingPackageLoaderTestCase, self).setUp()
+
+    def test_find_packages(self):
+        filepaths = list(self.loader._findPluginFilePaths('testplugin'))
+
+        self.assertEqual(len(filepaths), 4)
+
+
+    def test_load_packages(self):
+        packages = list(self.loader.load('testplugin'))
+
+        self.assertEqual(len(packages), 4)
+
+        for pkg in packages:
+            self.assertTrue(isinstance(pkg, ModuleType))
+
+    def test_plugin(self):
+        plugins = self.loader.load('testplugin')
+
+        results = set(p.do(1) for p in plugins)
+
+        self.assertEqual(results, set((2, 3, 4, 'quu')))
 
 if __name__ == '__main__':
     unittest.main()
