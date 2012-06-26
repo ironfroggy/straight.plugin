@@ -75,7 +75,7 @@ class ModuleLoader(Loader):
                         if not self._isPackage(poss_path):
                             continue
                         if self.recurse:
-                            subns = '.'.join((namespace, possible))
+                            subns = '.'.join((namespace, possible.split('.py')[0]))
                             for path in self._findPluginFilePaths(subns):
                                 yield path
                         base = possible
