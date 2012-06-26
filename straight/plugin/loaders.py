@@ -120,8 +120,8 @@ class ObjectLoader(Loader):
     The load() method returns all objects exported by the module.
     """
 
-    def __init__(self):
-        self.module_loader = ModuleLoader()
+    def __init__(self, recurse=False):
+        self.module_loader = ModuleLoader(recurse=recurse)
 
     def _fill_cache(self, namespace):
         modules = self.module_loader.load(namespace)
