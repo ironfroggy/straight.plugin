@@ -1,18 +1,7 @@
-import straight.plugin.loaders
-
-
 class PluginManager(object):
 
-    def __init__(self, loader=None):
-        self.loader = loader
-        self._plugins = []
-
-    def load(self, *args, **kwargs):
-        if self.loader is not None:
-            new_plugins = self.loader.load(*args, **kwargs)
-        else:
-            new_plugins = straight.plugin.loaders.unified_load(*args, **kwargs)
-        self._plugins.extend(new_plugins)
+    def __init__(self, plugins):
+        self._plugins = plugins
 
     def __iter__(self):
         return iter(self._plugins)

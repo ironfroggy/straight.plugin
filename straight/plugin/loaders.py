@@ -6,6 +6,8 @@ import os
 from importlib import import_module
 from imp import find_module
 
+from straight.plugin.manager import PluginManager
+
 
 class Loader(object):
 
@@ -16,7 +18,7 @@ class Loader(object):
         self._fill_cache(*args, **kwargs)
         self._post_fill()
         self._order()
-        return self._cache
+        return PluginManager(self._cache)
 
     def _meta(self, plugin):
         meta = getattr(plugin, '__plugin__', None)
