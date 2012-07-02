@@ -1,4 +1,4 @@
-import straight.plugin
+import straight.plugin.loaders
 
 
 class PluginManager(object):
@@ -8,10 +8,10 @@ class PluginManager(object):
         self._plugins = []
 
     def load(self, *args, **kwargs):
-        if self.loader is None:
-            new_plugins = straight.plugin.load(*agrs, **kwargs)
+        if self.loader is not None:
+            new_plugins = self.loader.load(*args, **kwargs)
         else:
-            raise TypeError("PluginManager cannot load without a loader.")
+            new_plugins = straight.plugin.loaders.unified_load(*args, **kwargs)
         self._plugins.extend(new_plugins)
 
     def __iter__(self):
@@ -34,21 +34,21 @@ class PluginManager(object):
             new_plugin_set._plugins.append(r)
         return new_plugin_set
 
-    def call(self, method, *args, **kwargs):
+    def call(self, methodname, *args, **kwargs):
         """Call a common method on all the plugins, if it exists."""
 
         for plugin in self._plugins:
-            method = getattr(plugin, method, None)
+            method = getattr(plugin, methodname, None)
             if method is None:
                 continue
             yield method(*args, **kwargs)
 
-    def first(self, method, *args, **kwargs):
+    def first(self, methodname, *args, **kwargs):
         """Call a common method on all the plugins, if it exists. Return the
         first result (the first non-None)
         """
 
-        for r in self.call(method, *args, **kwargs):
+        for r in self.call(methodname, *args, **kwargs):
             if r is not None:
                 return r
 
