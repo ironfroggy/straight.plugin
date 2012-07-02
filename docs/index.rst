@@ -34,6 +34,10 @@ straight forward.
 
     plugins = load('myplugins', subclasses=FileHandler)
 
+    handlers = plugins.produce()
+    for line in open(filename):
+        print handlers.pipe(line)
+
 Plugins are found from a :term:`namespace`, which means the above example
 will look for plugins in modules you could access by importing ``myplugins.this``
 or ``myplugins.that``, where the modules exist under the ``myplugins``
@@ -50,6 +54,7 @@ for them, adding new functionality and behavior without any change on your
 part, and allowing users to customize their setup by what plugins they
 install in their envrionment. You can even split up your project, and
 release some components as optional additions to your core package.
+    
 
 Getting Started
 ===============
