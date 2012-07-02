@@ -59,11 +59,31 @@ release some components as optional additions to your core package.
 Getting Started
 ===============
 
-The easiest way to get started is to start loading existing modules or
-classes with the ``straight.plugin`` loaders, which creates points where
-your project can be extended by injecting new modules into that namespace.
+After installing ``straight.plugin`` with ``pip install straight.plugin``,
+you'll want to decide on a :term:`namespace` within your package where you'll
+keep your own plugins and where other developers can add more plugins for
+your package to use.
 
-Read the :doc:`loaders` documentation to get started.
+For example, if you're writing a log filtering library named ``logfilter`` you may
+choose ``logfilter.plugins`` as a package to hold your plugins, so you'll create
+the empty package as you would any other python package. However, the only
+contents of ``logfilter/plugins/__init__.py`` will be a little bit of special
+code telling python this is a :term:`namespace package`.
+
+::
+
+    from pkgutil import extend_path
+    __path__ = extend_path(__path__, __name__)
+
+
+Now, any modules you place in this package are plugin modules able to be loaded
+by ``straight.plugin``.
+
+::
+
+    from straight.plugin import load
+
+    plugins = load("logfilter.plugins")
 
 
 Indices and tables
