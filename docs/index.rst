@@ -11,13 +11,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   API <api>
    Loaders <loaders>
    Writing Plugins <write-plugin>
    Glossary <glossary>
 
-
-Full Documentation: http://readthedocs.org/docs/straightplugin/
-Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
 
 Overview
 ========
@@ -55,6 +53,12 @@ part, and allowing users to customize their setup by what plugins they
 install in their envrionment. You can even split up your project, and
 release some components as optional additions to your core package.
     
+
+Learn more:
+
+* Full Documentation: http://readthedocs.org/docs/straightplugin/
+
+* Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
 
 Getting Started
 ===============

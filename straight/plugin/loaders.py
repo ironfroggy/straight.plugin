@@ -10,6 +10,7 @@ from straight.plugin.manager import PluginManager
 
 
 class Loader(object):
+    """Base loader class. Only used as a base-class for other loaders."""
 
     def __init__(self, *args, **kwargs):
         self._cache = []
@@ -139,6 +140,9 @@ class ObjectLoader(Loader):
 
 
 class ClassLoader(ObjectLoader):
+    """Loads classes out of plugin modules which are subclasses of a single
+    given base class.
+    """
 
     def _fill_cache(self, namespace, subclasses=None):
         objects = super(ClassLoader, self)._fill_cache(namespace)
@@ -155,6 +159,9 @@ class ClassLoader(ObjectLoader):
 
 
 def unified_load(namespace, subclasses=None, recurse=False):
+    """Provides a unified interface to both the module and class loaders,
+    finding modules by default or classes if given a ``subclasses`` parameter.
+    """
 
     if subclasses is not None:
         return ClassLoader(recurse=recurse).load(namespace, subclasses=subclasses)
