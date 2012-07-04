@@ -10,7 +10,7 @@ except ImportError:
     INSTALL_REQUIRES.append('importlib')
 
 setup(name='straight.plugin',
-    version='1.3.1-2',
+    version='1.4.0-pre.1',
     description='A simple namespaced plugin facility',
     author='Calvin Spealman',
     author_email='ironfroggy@gmail.com',
