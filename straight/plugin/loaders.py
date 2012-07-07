@@ -34,7 +34,10 @@ class Loader(object):
                 plugins = self._cache
                 self._cache = self.load(implied_namespace)
                 self._post_fill()
-                self._cache = plugins + self._cache
+                combined = []
+                combined.extend(plugins)
+                combined.extend(self._cache)
+                self._cache = combined
 
     def _order(self):
         self._cache.sort(key=self._plugin_priority, reverse=True)

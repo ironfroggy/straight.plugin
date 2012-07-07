@@ -6,6 +6,9 @@
 Welcome to straight.plugin's documentation!
 ===========================================
 
+Straight Plugin is very easy.
+
+
 Contents:
 
 .. toctree::
@@ -20,7 +23,6 @@ Contents:
 Overview
 ========
 
-`straight.plugin` is very easy.
 
 Loading all the classes inside a namespace which are subclasses of some
 base is the preferred invocation of ``straight.plugin`` loading, and is

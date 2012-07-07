@@ -237,11 +237,10 @@ class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 class PluginManagerTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.m = manager.PluginManager()
-        self.m._plugins = [
+        self.m = manager.PluginManager([
             mock.Mock(),
             mock.Mock(),
-        ]
+        ])
 
     def test_first(self):
         self.m._plugins[0].x.return_value = 1

@@ -17,11 +17,11 @@ class PluginManager(object):
         factories.
         """
 
-        new_plugin_set = PluginManager()
+        new_plugins = []
         for p in self._plugins:
             r = p(*args, **kwargs)
-            new_plugin_set._plugins.append(r)
-        return new_plugin_set
+            new_plugins.append(r)
+        return PluginManager(new_plugins)
 
     def call(self, methodname, *args, **kwargs):
         """Call a common method on all the plugins, if it exists."""
