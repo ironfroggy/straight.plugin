@@ -1,74 +1,46 @@
 Full Documentation: http://readthedocs.org/docs/straightplugin/
 Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
 
-# straight.plugin
+Straight Plugin is very easy.
 
-straight.plugin is a Python plugin loader inspired by twisted.plugin with two
-important distinctions:
+Straight Plugin provides a type of plugin you can create
+from almost any existing Python modules, and an easy way for outside developers
+to add functionality and customization to your projects with their own
+plugins.
 
- - Fewer dependencies
- - Python 3 compatible
+Using any available plugins is a snap.
 
-The system is used to allow multiple Python packages to provide plugins within
-a namespace package, where other packages will locate and utilize. The plugins
-themselves are modules in a namespace package where the namespace identifies
-the plugins in it for some particular purpose or intent.
-
-For example, if I was building a log parser, I might tell users that he parser
-will look for plugins in the `logfilter` namespace. Someone else could then
-provide a module named `logfilter.normalizedates` and my parser would find this
-plugin, load it, and use it to filter the log entries.
-
-It would be up to me to document what the plugin actually looks like, based on
-how I need to use it in my project.
-
-## Using plugins
+::
 
     from straight.plugin import load
 
-    class Skip(Exception):
-        pass
+    plugins = load('theproject.plugins', subclasses=FileHandler)
 
-    plugins = load('logfilter')
-
-    def filter_entry(log_entry):
-        for plugin in plugins:
-            try:
-                log_entry = plugin.filter(log_entry)
-            except Skip:
-                pass
-        return log_entry
-
-## Writing plugins
-
-    # logfilter/__init__.py
-    from pkgutil import extend_path
-    __path__ = extend_path(__path__, __name__)
-
-    
-    # logfilter/hide_extra.py
-
-    from logfilter import Skip
-
-    def filter(log_entry):
-        level = log_entry.split(':', 1)[0]
-        if level != 'EXTRA':
-            return log_entry
-        else:
-            raise Skip()
-
-## Module and Class Plugins
-
-straight.plugin is able to load both modules and classes, depending on your
-needs. When you call `load()` with a namespace, you'll get all the modules
-found under that namespace. When you call it with the optional `subclasses`
-parameter, all the classes which are subclases of the given type will be
-given.
-
-    # Example
-
-    from straight.plugins import load
-
-    plugins = load("ircclient", subclasses=IrcClientCommand)
+    handlers = plugins.produce()
+    for line in open(filename):
+        print handlers.pipe(line)
 
 
+And, writing plugins is just as easy.
+
+::
+
+    from theproject import FileHandler
+
+    class LineNumbers(FileHandler):
+        def __init__(self):
+            self.lineno = 0
+        def pipe(line):
+            self.lineno += 1
+            return "%04d %s" % (self.lineno, line)
+
+Plugins are found from a :term:`namespace`, which means the above example
+would find any ``FileHandler`` classes defined in modules you might import
+as ``theproject.plugins.default`` or ``theproject.plugins.extra``. Through
+the magic of :term:`namespace packages <namespace package>`, we can even
+split these up into separate installations, even managed by different teams.
+This means you can ship a project with a set of default plugins implementing
+its behavior, and allow other projects to hook in new functionality simply
+by shipping their own plugins under the same :term:`namespace`.
+
+:doc:`Get started and learn more, today <getting-started>`
