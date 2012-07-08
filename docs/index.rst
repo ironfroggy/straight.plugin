@@ -6,90 +6,71 @@
 Welcome to straight.plugin's documentation!
 ===========================================
 
-Straight Plugin is very easy.
-
-
-Contents:
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   API <api>
-   Loaders <loaders>
+   Getting Started <getting-started>
    Writing Plugins <write-plugin>
+   Using Plugins <loaders>
+   API <api>
    Glossary <glossary>
 
 
 Overview
 ========
 
+Straight Plugin is very easy.
 
-Loading all the classes inside a namespace which are subclasses of some
-base is the preferred invocation of ``straight.plugin`` loading, and is
-straight forward.
+Straight Plugin provides a type of plugin you can create
+from almost any existing Python modules, and an easy way for outside developers
+to add functionality and customization to your projects with their own
+plugins.
+
+Using any available plugins is a snap.
 
 ::
 
     from straight.plugin import load
 
-    plugins = load('myplugins', subclasses=FileHandler)
+    plugins = load('theproject.plugins', subclasses=FileHandler)
 
     handlers = plugins.produce()
     for line in open(filename):
         print handlers.pipe(line)
 
-Plugins are found from a :term:`namespace`, which means the above example
-will look for plugins in modules you could access by importing ``myplugins.this``
-or ``myplugins.that``, where the modules exist under the ``myplugins``
-package. The distinction between a normal package and a namespace package
-is very important here, because a namespace package can add modules and
-other packages into an existing package, but exists in a separate location
-on disk.
 
-The advantage of this is how easily you can create a Python application or
-library which others can easily extend. By documenting the plugins your
-project loads internally, you can allow others to distribution their own
-namespace packages injecting new plugin modules where your code will look
-for them, adding new functionality and behavior without any change on your
-part, and allowing users to customize their setup by what plugins they
-install in their envrionment. You can even split up your project, and
-release some components as optional additions to your core package.
+And, writing plugins is just as easy.
+
+::
+
+    from theproject import FileHandler
+
+    class LineNumbers(FileHandler):
+        def __init__(self):
+            self.lineno = 0
+        def pipe(line):
+            self.lineno += 1
+            return "%04d %s" % (self.lineno, line)
+
+
+Plugins are found from a :term:`namespace`, which means the above example
+would find any ``FileHandler`` classes defined in modules you might import
+as ``theproject.plugins.default`` or ``theproject.plugins.extra``. Through
+the magic of :term:`namespace packages <namespace package>`, we can even
+split these up into separate installations, even managed by different teams.
+This means you can ship a project with a set of default plugins implementing
+its behavior, and allow other projects to hook in new functionality simply
+by shipping their own plugins under the same :term:`namespace`.
+
+:doc:`Get started and learn more, today <getting-started>`
     
 
-Learn more:
+More Resources
+##############
 
 * Full Documentation: http://readthedocs.org/docs/straightplugin/
 
 * Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
-
-Getting Started
-===============
-
-After installing ``straight.plugin`` with ``pip install straight.plugin``,
-you'll want to decide on a :term:`namespace` within your package where you'll
-keep your own plugins and where other developers can add more plugins for
-your package to use.
-
-For example, if you're writing a log filtering library named ``logfilter`` you may
-choose ``logfilter.plugins`` as a package to hold your plugins, so you'll create
-the empty package as you would any other python package. However, the only
-contents of ``logfilter/plugins/__init__.py`` will be a little bit of special
-code telling python this is a :term:`namespace package`.
-
-::
-
-    from pkgutil import extend_path
-    __path__ = extend_path(__path__, __name__)
-
-
-Now, any modules you place in this package are plugin modules able to be loaded
-by ``straight.plugin``.
-
-::
-
-    from straight.plugin import load
-
-    plugins = load("logfilter.plugins")
 
 
 Indices and tables

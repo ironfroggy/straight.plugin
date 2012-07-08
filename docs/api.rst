@@ -10,6 +10,8 @@ Loaders
 .. autoclass:: straight.plugin.loaders.ObjectLoader
 .. autoclass:: straight.plugin.loaders.ClassLoader
 
+.. _api-plugin-manager:
+
 PluginManager
 #############
 
