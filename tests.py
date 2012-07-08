@@ -5,7 +5,9 @@ import os
 import unittest
 from types import ModuleType
 
-from straight.plugin import loaders
+import mock
+
+from straight.plugin import loaders, manager
 
 try:
     skipIf = unittest.skipIf
@@ -182,22 +184,90 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     def test_find_packages(self):
         filepaths = list(self.loader._findPluginFilePaths('testplugin'))
 
-        self.assertEqual(len(filepaths), 2)
+        self.assertEqual(len(filepaths), 3)
+
 
     def test_load_packages(self):
         packages = list(self.loader.load('testplugin'))
 
-        self.assertEqual(len(packages), 2)
+        self.assertEqual(len(packages), 3)
 
         for pkg in packages:
             self.assertTrue(isinstance(pkg, ModuleType))
-    
+
     def test_plugin(self):
         plugins = self.loader.load('testplugin')
 
         results = set(p.do(1) for p in plugins)
 
-        self.assertEqual(results, set((2, 3)))
+        self.assertEqual(results, set((2, 3, 4)))
+
+
+class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'package-test-plugins'),
+    )
+
+    def setUp(self):
+        self.loader = loaders.ModuleLoader(recurse=True)
+        super(RecursingPackageLoaderTestCase, self).setUp()
+
+    def test_find_packages(self):
+        filepaths = list(self.loader._findPluginFilePaths('testplugin'))
+
+        self.assertEqual(len(filepaths), 4)
+
+
+    def test_load_packages(self):
+        packages = list(self.loader.load('testplugin'))
+
+        self.assertEqual(len(packages), 4)
+
+        for pkg in packages:
+            self.assertTrue(isinstance(pkg, ModuleType))
+
+    def test_plugin(self):
+        plugins = self.loader.load('testplugin')
+
+        results = set(p.do(1) for p in plugins)
+
+        self.assertEqual(results, set((2, 3, 4, 'quu')))
+
+
+class PluginManagerTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.m = manager.PluginManager([
+            mock.Mock(),
+            mock.Mock(),
+        ])
+
+    def test_first(self):
+        self.m._plugins[0].x.return_value = 1
+
+        self.assertEqual(1, self.m.first('x', 'a'))
+        self.assertFalse(self.m._plugins[1].called)
+        self.assertTrue(self.m._plugins[0].called_with('a'))
+
+    def test_pipe(self):
+        def plus_one(x):
+            return x + 1
+        self.m._plugins[0].x.side_effect = plus_one
+        self.m._plugins[1].x.side_effect = plus_one
+
+        self.assertEqual(3, self.m.pipe('x', 1))
+
+    def test_call(self):
+        results = self.m.call('x', 1)
+        self.assertTrue(self.m._plugins[0].called_with('a'))
+        self.assertTrue(self.m._plugins[1].x.called_with(1))
+
+    def test_produce(self):
+        products = self.m.produce(1, 2)
+        assert products[0] is self.m._plugins[0].return_value
+        self.m._plugins[0].called_with(1, 2)
+        assert products[1] is self.m._plugins[1].return_value
+        self.m._plugins[1].called_with(1, 2)
 
 if __name__ == '__main__':
     unittest.main()
