@@ -79,6 +79,20 @@ class ModuleLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     def test_plugin(self):
         assert self.loader.load('testplugin')[0].do(1) == 2
 
+class StaticFinderTestCase(LoaderTestCaseMixin, unittest.TestCase):
+
+    paths = (
+        os.path.join(os.path.dirname(__file__), 'test-packages', 'media-package'),
+    )
+    
+    def setUp(self):
+        self.loader = loaders.ModuleLoader()
+        super(StaticFinderTestCase, self).setUp()
+    
+    def test_load(self):
+        modules = self.loader.load('testplugin')
+        self.assertIsNotNone(modules.findFile('templates/bar.html'))
+        self.assertIsNone(modules.findFile('templates/err.html'))
 
 class ImpliedNamespaceModuleTestCase(LoaderTestCaseMixin, unittest.TestCase):
 

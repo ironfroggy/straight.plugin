@@ -1,3 +1,5 @@
+import os
+
 class PluginManager(object):
 
     def __init__(self, plugins):
@@ -59,4 +61,11 @@ class PluginManager(object):
             if r is not None:
                 first_arg = r
         return r
+
+    def findFile(self, filename):
+        paths = set([os.path.dirname(p.__file__) for p in self._plugins])
+        for path in paths:
+            full = os.path.join(path, filename)
+            if os.path.isfile(full):
+                return full
 
