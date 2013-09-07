@@ -1,0 +1,6 @@
+include README.rst
+include LICENSE
+include AUTHORS
+include tests.py
+graft test-packages
+graft doc
