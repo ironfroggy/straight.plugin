@@ -59,10 +59,7 @@ class ModuleLoader(Loader):
 
     def _isPackage(self, path):
         pkg_init = os.path.join(path, '__init__.py')
-        if os.path.exists(pkg_init):
-            return True
-
-        return False
+        return os.path.exists(pkg_init)
 
     def _findPluginFilePaths(self, namespace):
         already_seen = set()
