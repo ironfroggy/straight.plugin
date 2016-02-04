@@ -4,13 +4,65 @@ import sys
 import os
 
 from importlib import import_module
+from imp import find_module
+
+from straight.plugin.manager import PluginManager
 
 
-class ModuleLoader(object):
+class Loader(object):
+    """Base loader class. Only used as a base-class for other loaders."""
+
+    def __init__(self, *args, **kwargs):
+        self._cache = []
+
+    def load(self, *args, **kwargs):
+        self._fill_cache(*args, **kwargs)
+        self._post_fill()
+        self._order()
+        return PluginManager(self._cache)
+
+    def _meta(self, plugin):
+        meta = getattr(plugin, '__plugin__', None)
+        return meta
+
+    def _post_fill(self):
+        for plugin in self._cache:
+            meta = self._meta(plugin)
+            if not getattr(meta, 'load', True):
+                self._cache.remove(plugin)
+            for implied_namespace in getattr(meta, 'imply_plugins', []):
+                plugins = self._cache
+                self._cache = self.load(implied_namespace)
+                self._post_fill()
+                combined = []
+                combined.extend(plugins)
+                combined.extend(self._cache)
+                self._cache = combined
+
+    def _order(self):
+        self._cache.sort(key=self._plugin_priority, reverse=True)
+
+    def _plugin_priority(self, plugin):
+        meta = self._meta(plugin)
+        return getattr(meta, 'priority', 0.0)
+
+
+class ModuleLoader(Loader):
     """Performs the work of locating and loading straight plugins.
     
     This looks for plugins in every location in the import path.
     """
+
+    def __init__(self, recurse=False):
+        super(ModuleLoader, self).__init__()
+        self.recurse = recurse
+
+    def _isPackage(self, path):
+        pkg_init = os.path.join(path, '__init__.py')
+        if os.path.exists(pkg_init):
+            return True
+
+        return False
 
     def _findPluginFilePaths(self, namespace):
         already_seen = set()
@@ -24,11 +76,14 @@ class ModuleLoader(object):
             if os.path.exists(namespace_path):
                 for possible in os.listdir(namespace_path):
 
-                    if os.path.isdir(os.path.join(namespace_path, possible)):
-                        pkg_init = os.path.join(namespace_path, possible, '__init__.py')
-                        if not os.path.exists(pkg_init):
+                    poss_path = os.path.join(namespace_path, possible)
+                    if os.path.isdir(poss_path):
+                        if not self._isPackage(poss_path):
                             continue
-                        
+                        if self.recurse:
+                            subns = '.'.join((namespace, possible.split('.py')[0]))
+                            for path in self._findPluginFilePaths(subns):
+                                yield path
                         base = possible
                     else:
                         base, ext = os.path.splitext(possible)
@@ -49,32 +104,32 @@ class ModuleLoader(object):
             try:
                 module = import_module(import_path)
             except ImportError:
-                raise Exception(import_path)
+                #raise Exception(import_path)
 
                 module = None
 
             if module is not None:
                 yield module
 
-    def load(self, namespace):
+    def _fill_cache(self, namespace):
         """Load all modules found in a namespace"""
 
         modules = self._findPluginModules(namespace)
 
-        return list(modules)
+        self._cache = list(modules)
 
 
-class ObjectLoader(object):
+class ObjectLoader(Loader):
     """Loads classes or objects out of modules in a namespace, based on a
     provided criteria.
    
     The load() method returns all objects exported by the module.
     """
 
-    def __init__(self):
-        self.module_loader = ModuleLoader()
+    def __init__(self, recurse=False):
+        self.module_loader = ModuleLoader(recurse=recurse)
 
-    def load(self, namespace):
+    def _fill_cache(self, namespace):
         modules = self.module_loader.load(namespace)
         objects = []
 
@@ -82,14 +137,18 @@ class ObjectLoader(object):
             for attr_name in dir(module):
                 if not attr_name.startswith('_'):
                     objects.append(getattr(module, attr_name))
-    
+        
+        self._cache = objects
         return objects
 
 
 class ClassLoader(ObjectLoader):
+    """Loads classes out of plugin modules which are subclasses of a single
+    given base class.
+    """
 
-    def load(self, namespace, subclasses=None):
-        objects = super(ClassLoader, self).load(namespace)
+    def _fill_cache(self, namespace, subclasses=None):
+        objects = super(ClassLoader, self)._fill_cache(namespace)
         classes = []
         for cls in objects:
             if isinstance(cls, type):
@@ -98,13 +157,17 @@ class ClassLoader(ObjectLoader):
                 elif issubclass(cls, subclasses) and cls is not subclasses:
                     classes.append(cls)
 
+        self._cache = classes
         return classes
 
 
-def unified_load(namespace, subclasses=None):
+def unified_load(namespace, subclasses=None, recurse=False):
+    """Provides a unified interface to both the module and class loaders,
+    finding modules by default or classes if given a ``subclasses`` parameter.
+    """
 
     if subclasses is not None:
-        return ClassLoader().load(namespace, subclasses=subclasses)
+        return ClassLoader(recurse=recurse).load(namespace, subclasses=subclasses)
     else:
-        return ModuleLoader().load(namespace)
+        return ModuleLoader(recurse=recurse).load(namespace)
 

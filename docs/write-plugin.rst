@@ -69,3 +69,28 @@ in the namespace, which we never even knew about.
             except Skip:
                 pass
         return log_entry
+
+
+Distributing Plugins
+''''''''''''''''''''
+
+If you are writing plugins inside your own project to use, they'll be
+distributed like any other modules in your package. There is no extra work
+to do here.
+
+However, if you want to release and distribute plugins on their own, you'll
+need to tell your :term:`setup.py` about your :term:`namespace package`.
+
+::
+
+    setup(
+        # ...
+        namespace_packages = ['logfilter.plugins']
+    )
+
+This will make sure when your plugins are installed alongside the original
+project, both are importable, even though they came from their own
+distributions.
+
+You can read more about this at the Distribute
+`documentation on namespace packages <http://packages.python.org/distribute/setuptools.html#namespace-packages>`_.

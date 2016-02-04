@@ -1,23 +1,5 @@
-.. straight.plugin documentation master file, created by
-   sphinx-quickstart on Wed Jan 25 22:49:22 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to straight.plugin's documentation!
-===========================================
-
-.. toctree::
-   :maxdepth: 1
-
-   Getting Started <getting-started>
-   Writing Plugins <write-plugin>
-   Using Plugins <loaders>
-   API <api>
-   Glossary <glossary>
-
-
-Overview
-========
+Full Documentation: http://readthedocs.org/docs/straightplugin/
+Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
 
 Straight Plugin is very easy.
 
@@ -52,7 +34,6 @@ And, writing plugins is just as easy.
             self.lineno += 1
             return "%04d %s" % (self.lineno, line)
 
-
 Plugins are found from a :term:`namespace`, which means the above example
 would find any ``FileHandler`` classes defined in modules you might import
 as ``theproject.plugins.default`` or ``theproject.plugins.extra``. Through
@@ -63,20 +44,3 @@ its behavior, and allow other projects to hook in new functionality simply
 by shipping their own plugins under the same :term:`namespace`.
 
 :doc:`Get started and learn more, today <getting-started>`
-    
-
-More Resources
-##############
-
-* Full Documentation: http://readthedocs.org/docs/straightplugin/
-
-* Mailing List: https://groups.google.com/forum/#!forum/straight.plugin
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
