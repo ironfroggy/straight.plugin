@@ -257,8 +257,11 @@ class PluginManagerTestCase(unittest.TestCase):
             return x + 1
         self.m._plugins[0].x.side_effect = plus_one
         self.m._plugins[1].x.side_effect = plus_one
-
         self.assertEqual(3, self.m.pipe('x', 1))
+
+    def test_pipe_no_plugins_found(self):
+        no_plugins = manager.PluginManager([])
+        self.assertEqual(1, no_plugins.pipe('x', 1))
 
     def test_call(self):
         results = self.m.call('x', 1)

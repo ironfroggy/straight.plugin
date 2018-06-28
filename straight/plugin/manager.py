@@ -50,7 +50,7 @@ class PluginManager(object):
 
         Useful to utilize plugins as sets of filters.
         """
-
+        r = first_arg
         for plugin in self._plugins:
             method = getattr(plugin, methodname, None)
             if method is None:
