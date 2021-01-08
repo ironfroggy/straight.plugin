@@ -1,2 +1,2 @@
 def do(i):
-    return i+3
+    return i + 3
