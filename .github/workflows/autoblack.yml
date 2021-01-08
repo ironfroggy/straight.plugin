@@ -28,3 +28,6 @@ jobs:
           git checkout $GITHUB_HEAD_REF
           git commit -am "fixup: Format Python code with Black"
           git push
+      - name: Run tox
+        uses: tox-dev/gh-action-tox
+        run: tox 
