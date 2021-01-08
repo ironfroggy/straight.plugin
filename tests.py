@@ -3,12 +3,8 @@
 import sys
 import os
 import unittest
+from unittest import mock
 from types import ModuleType
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
 
 from straight.plugin import loaders, manager
 
