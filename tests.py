@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-import sys
 import os
+import sys
 import unittest
-from unittest import mock
 from types import ModuleType
+from unittest import mock
 
 from straight.plugin import loaders, manager
 
