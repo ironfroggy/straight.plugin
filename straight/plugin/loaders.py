@@ -32,15 +32,15 @@ class Loader(object):
         return PluginManager(self._cache)
 
     def _meta(self, plugin):
-        meta = getattr(plugin, '__plugin__', None)
+        meta = getattr(plugin, "__plugin__", None)
         return meta
 
     def _post_fill(self):
         for plugin in self._cache:
             meta = self._meta(plugin)
-            if not getattr(meta, 'load', True):
+            if not getattr(meta, "load", True):
                 self._cache.remove(plugin)
-            for implied_namespace in getattr(meta, 'imply_plugins', []):
+            for implied_namespace in getattr(meta, "imply_plugins", []):
                 plugins = self._cache
                 self._cache = self.load(implied_namespace)
                 self._post_fill()
@@ -54,7 +54,7 @@ class Loader(object):
 
     def _plugin_priority(self, plugin):
         meta = self._meta(plugin)
-        return getattr(meta, 'priority', 0.0)
+        return getattr(meta, "priority", 0.0)
 
 
 class ModuleLoader(Loader):
@@ -68,7 +68,7 @@ class ModuleLoader(Loader):
         self.recurse = recurse
 
     def _isPackage(self, path):
-        pkg_init = os.path.join(path, '__init__.py')
+        pkg_init = os.path.join(path, "__init__.py")
         return os.path.exists(pkg_init)
 
     def _findPluginFilePaths(self, namespace):
@@ -87,15 +87,15 @@ class ModuleLoader(Loader):
 
                     if self._isPackage(poss_path):
                         if self.recurse:
-                            subns = '.'.join((namespace, possible.split('.py')[0]))
+                            subns = ".".join((namespace, possible.split(".py")[0]))
                             for path in self._findPluginFilePaths(subns):
                                 yield path
                         base = possible
                     else:
                         base, ext = os.path.splitext(possible)
-                        if base == '__init__' or ext != '.py':
+                        if base == "__init__" or ext != ".py":
                             continue
-                    
+
                     if base not in already_seen:
                         already_seen.add(base)
                         yield os.path.join(namespace, possible)
@@ -107,12 +107,12 @@ class ModuleLoader(Loader):
             path_segments = list(filepath.split(os.path.sep))
             path_segments = [p for p in path_segments if p]
             path_segments[-1] = os.path.splitext(path_segments[-1])[0]
-            import_path = '.'.join(path_segments)
+            import_path = ".".join(path_segments)
 
             try:
                 module = import_module(import_path)
             except ImportError:
-                #raise Exception(import_path)
+                # raise Exception(import_path)
 
                 module = None
 
@@ -144,9 +144,9 @@ class ObjectLoader(Loader):
 
         for module in modules:
             for attr_name in dir(module):
-                if not attr_name.startswith('_'):
+                if not attr_name.startswith("_"):
                     objects.append(getattr(module, attr_name))
-        
+
         self._cache = objects
         return objects
 
@@ -180,4 +180,3 @@ def unified_load(namespace, subclasses=None, recurse=False):
         return ClassLoader(recurse=recurse).load(namespace, subclasses=subclasses)
     else:
         return ModuleLoader(recurse=recurse).load(namespace)
-
