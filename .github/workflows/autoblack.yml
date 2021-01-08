@@ -30,4 +30,3 @@ jobs:
           git push
       - name: Run tox
         uses: tox-dev/gh-action-tox
-        run: tox 
