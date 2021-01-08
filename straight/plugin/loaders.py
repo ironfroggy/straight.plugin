@@ -22,6 +22,9 @@ class Loader(object):
     def __init__(self, *args, **kwargs):
         self._cache = []
         self.loaded = False
+    
+    def _fill_cache(self, *args, **kwargs):
+        raise NotImplementedError()
 
     def load(self, *args, **kwargs):
         if not self.loaded:
