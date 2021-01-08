@@ -3,10 +3,17 @@
 import sys
 import os
 
+from functools import lru_cache
 from importlib import import_module
 from imp import find_module
 
 from straight.plugin.manager import PluginManager
+
+
+def unique_list(seq):
+    seen = set()
+    seen_add = seen.add
+    return [x for x in seq if not (x in seen or seen_add(x))]
 
 
 class Loader(object):
@@ -14,11 +21,14 @@ class Loader(object):
 
     def __init__(self, *args, **kwargs):
         self._cache = []
+        self.loaded = False
 
     def load(self, *args, **kwargs):
-        self._fill_cache(*args, **kwargs)
-        self._post_fill()
-        self._order()
+        if not self.loaded:
+            self._fill_cache(*args, **kwargs)
+            self._post_fill()
+            self._order()
+            self.loaded = True
         return PluginManager(self._cache)
 
     def _meta(self, plugin):
@@ -65,18 +75,17 @@ class ModuleLoader(Loader):
         already_seen = set()
 
         # Look in each location in the path
-        for path in sys.path:
+        for path in set(sys.path):
 
             # Within this, we want to look for a package for the namespace
             namespace_rel_path = namespace.replace(".", os.path.sep)
             namespace_path = os.path.join(path, namespace_rel_path)
-            if os.path.exists(namespace_path):
+            try:
                 for possible in os.listdir(namespace_path):
 
                     poss_path = os.path.join(namespace_path, possible)
-                    if os.path.isdir(poss_path):
-                        if not self._isPackage(poss_path):
-                            continue
+
+                    if self._isPackage(poss_path):
                         if self.recurse:
                             subns = '.'.join((namespace, possible.split('.py')[0]))
                             for path in self._findPluginFilePaths(subns):
@@ -90,6 +99,8 @@ class ModuleLoader(Loader):
                     if base not in already_seen:
                         already_seen.add(base)
                         yield os.path.join(namespace, possible)
+            except (FileNotFoundError, NotADirectoryError):
+                pass
 
     def _findPluginModules(self, namespace):
         for filepath in self._findPluginFilePaths(namespace):
@@ -124,6 +135,7 @@ class ObjectLoader(Loader):
     """
 
     def __init__(self, recurse=False):
+        super().__init__()
         self.module_loader = ModuleLoader(recurse=recurse)
 
     def _fill_cache(self, namespace):
@@ -158,6 +170,7 @@ class ClassLoader(ObjectLoader):
         return classes
 
 
+@lru_cache
 def unified_load(namespace, subclasses=None, recurse=False):
     """Provides a unified interface to both the module and class loaders,
     finding modules by default or classes if given a ``subclasses`` parameter.
