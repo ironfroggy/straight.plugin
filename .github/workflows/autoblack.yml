@@ -43,4 +43,4 @@ jobs:
       - name: Test with tox
         run: |
           VERSION=${{ matrix.python-version }}
-          tox -e ${VERSION/./}
+          tox -e py${VERSION/./}
