@@ -22,7 +22,7 @@ class Loader(object):
     def __init__(self, *args, **kwargs):
         self._cache = []
         self.loaded = False
-    
+
     def _fill_cache(self, *args, **kwargs):
         raise NotImplementedError()
 
@@ -62,7 +62,7 @@ class Loader(object):
 
 class ModuleLoader(Loader):
     """Performs the work of locating and loading straight plugins.
-    
+
     This looks for plugins in every location in the import path.
     """
 
@@ -133,7 +133,7 @@ class ModuleLoader(Loader):
 class ObjectLoader(Loader):
     """Loads classes or objects out of modules in a namespace, based on a
     provided criteria.
-   
+
     The load() method returns all objects exported by the module.
     """
 
