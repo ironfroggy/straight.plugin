@@ -173,7 +173,7 @@ class ClassLoader(ObjectLoader):
         return classes
 
 
-@lru_cache
+@lru_cache(maxsize=None, typed=False)
 def unified_load(namespace, subclasses=None, recurse=False):
     """Provides a unified interface to both the module and class loaders,
     finding modules by default or classes if given a ``subclasses`` parameter.
