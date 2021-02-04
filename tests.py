@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 
-import sys
 import os
+import sys
 import unittest
 from types import ModuleType
-
-try:
-    from unittest import mock
-except ImportError:
-    import mock
+from unittest import mock
 
 from straight.plugin import loaders, manager
 
@@ -24,16 +20,20 @@ except AttributeError:
         Usually you can use TestResult.skip() or one of the skipping decorators
         instead of raising this directly.
         """
+
     def skipIf(cond, reason):
         """
         Unconditionally skip a test.
         """
+
         def decorator(test_item):
             if cond:
                 if not isinstance(test_item, type):
+
                     @functools.wraps(test_item)
                     def skip_wrapper(*args, **kwargs):
                         pass
+
                     test_item = skip_wrapper
 
                 test_item.__unittest_skip__ = True
@@ -41,6 +41,7 @@ except AttributeError:
                 return test_item
             else:
                 return test_item
+
         return decorator
 
 
@@ -60,71 +61,69 @@ class LoaderTestCaseMixin(object):
         for path in self.paths:
             del sys.path[-1]
         for modname in list(sys.modules):
-            if modname.startswith('testplugin'):
+            if modname.startswith("testplugin"):
                 del sys.modules[modname]
 
 
 class ModuleLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'more-test-plugins'),
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'some-test-plugins'),
+        os.path.join(os.path.dirname(__file__), "test-packages", "more-test-plugins"),
+        os.path.join(os.path.dirname(__file__), "test-packages", "some-test-plugins"),
     )
-    
+
     def setUp(self):
         self.loader = loaders.ModuleLoader()
         super(ModuleLoaderTestCase, self).setUp()
-    
+
     def test_load(self):
-        modules = list(self.loader.load('testplugin'))
+        modules = list(self.loader.load("testplugin"))
         assert len(modules) == 2, modules
 
     def test_plugin(self):
-        assert self.loader.load('testplugin')[0].do(1) == 2
+        assert self.loader.load("testplugin")[0].do(1) == 2
 
 
 class ImpliedNamespaceModuleTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'pep-420-plugins'),
+        os.path.join(os.path.dirname(__file__), "test-packages", "pep-420-plugins"),
     )
-    
+
     def setUp(self):
         self.loader = loaders.ModuleLoader()
         super(ImpliedNamespaceModuleTestCase, self).setUp()
-    
-    @skipIf(sys.version_info < (3, 3),"Python < 3.3")
+
+    @skipIf(sys.version_info < (3, 3), "Python < 3.3")
     def test_load(self):
-        modules = list(self.loader.load('testplugin'))
+        modules = list(self.loader.load("testplugin"))
         assert len(modules) == 1, modules
 
     @skipIf(sys.version_info < (3, 3), "Python < 3.3")
     def test_plugin(self):
-        r = self.loader.load('testplugin')[0].do("implied namespace packages are")
+        r = self.loader.load("testplugin")[0].do("implied namespace packages are")
         self.assertEqual(r, "implied namespace packages are from pep-420")
 
 
 class ImplyLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
-    paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'imply-plugins'),
-    )
-    
+    paths = (os.path.join(os.path.dirname(__file__), "test-packages", "imply-plugins"),)
+
     def setUp(self):
         self.loader = loaders.ModuleLoader()
         super(ImplyLoaderTestCase, self).setUp()
-    
+
     def test_load(self):
-        modules = list(self.loader.load('testplugin'))
+        modules = list(self.loader.load("testplugin"))
         assert len(modules) == 1, modules
-        assert modules[0].__name__ == 'testplugin_2.bar', modules[0].__name__
+        assert modules[0].__name__ == "testplugin_2.bar", modules[0].__name__
 
 
 class ObjectLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'more-test-plugins'),
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'some-test-plugins'),
+        os.path.join(os.path.dirname(__file__), "test-packages", "more-test-plugins"),
+        os.path.join(os.path.dirname(__file__), "test-packages", "some-test-plugins"),
     )
 
     def setUp(self):
@@ -132,14 +131,14 @@ class ObjectLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         super(ObjectLoaderTestCase, self).setUp()
 
     def test_load_all(self):
-        objects = list(self.loader.load('testplugin'))
-        self.assertEqual(len(objects), 2, str(objects)[:100] + ' ...')
+        objects = list(self.loader.load("testplugin"))
+        self.assertEqual(len(objects), 2, str(objects)[:100] + " ...")
 
 
 class ClassLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'class-test-plugins'),
+        os.path.join(os.path.dirname(__file__), "test-packages", "class-test-plugins"),
     )
 
     def setUp(self):
@@ -147,21 +146,23 @@ class ClassLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         super(ClassLoaderTestCase, self).setUp()
 
     def test_all_classes(self):
-        classes = list(self.loader.load('testplugin'))
+        classes = list(self.loader.load("testplugin"))
 
         self.assertEqual(len(classes), 3)
 
     def test_subclasses(self):
         from testplugin import testclasses
-        classes = list(self.loader.load('testplugin', subclasses=testclasses.A))
+
+        classes = list(self.loader.load("testplugin", subclasses=testclasses.A))
 
         self.assertEqual(len(classes), 1)
         self.assertTrue(classes[0] is testclasses.A1)
 
+
 class PriorityLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'class-test-plugins'),
+        os.path.join(os.path.dirname(__file__), "test-packages", "class-test-plugins"),
     )
 
     def setUp(self):
@@ -169,29 +170,31 @@ class PriorityLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         super(PriorityLoaderTestCase, self).setUp()
 
     def test_all_classes(self):
-        classes = list(self.loader.load('testplugin'))
+        classes = list(self.loader.load("testplugin"))
 
-        self.assertEqual(classes[0].__name__, 'B')
-        self.assertEqual(classes[1].__name__, 'A')
-        self.assertEqual(classes[2].__name__, 'A1')
+        self.assertEqual(classes[0].__name__, "B")
+        self.assertEqual(classes[1].__name__, "A")
+        self.assertEqual(classes[2].__name__, "A1")
+
 
 class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'package-test-plugins'),
+        os.path.join(
+            os.path.dirname(__file__), "test-packages", "package-test-plugins"
+        ),
     )
 
     def setUp(self):
         self.loader = loaders.ModuleLoader()
         super(PackageLoaderTestCase, self).setUp()
-    
+
     def test_find_packages(self):
-        filepaths = list(self.loader._findPluginFilePaths('testplugin'))
+        filepaths = list(self.loader._findPluginFilePaths("testplugin"))
 
         self.assertEqual(len(filepaths), 3)
 
-
     def test_load_packages(self):
-        packages = list(self.loader.load('testplugin'))
+        packages = list(self.loader.load("testplugin"))
 
         self.assertEqual(len(packages), 3)
 
@@ -199,7 +202,7 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
             self.assertTrue(isinstance(pkg, ModuleType))
 
     def test_plugin(self):
-        plugins = self.loader.load('testplugin')
+        plugins = self.loader.load("testplugin")
 
         results = set(p.do(1) for p in plugins)
 
@@ -208,7 +211,9 @@ class PackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
 class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     paths = (
-        os.path.join(os.path.dirname(__file__), 'test-packages', 'package-test-plugins'),
+        os.path.join(
+            os.path.dirname(__file__), "test-packages", "package-test-plugins"
+        ),
     )
 
     def setUp(self):
@@ -216,13 +221,12 @@ class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         super(RecursingPackageLoaderTestCase, self).setUp()
 
     def test_find_packages(self):
-        filepaths = list(self.loader._findPluginFilePaths('testplugin'))
+        filepaths = list(self.loader._findPluginFilePaths("testplugin"))
 
         self.assertEqual(len(filepaths), 4)
 
-
     def test_load_packages(self):
-        packages = list(self.loader.load('testplugin'))
+        packages = list(self.loader.load("testplugin"))
 
         self.assertEqual(len(packages), 4)
 
@@ -230,39 +234,36 @@ class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
             self.assertTrue(isinstance(pkg, ModuleType))
 
     def test_plugin(self):
-        plugins = self.loader.load('testplugin')
+        plugins = self.loader.load("testplugin")
 
         results = set(p.do(1) for p in plugins)
 
-        self.assertEqual(results, set((2, 3, 4, 'quu')))
+        self.assertEqual(results, set((2, 3, 4, "quu")))
 
 
 class PluginManagerTestCase(unittest.TestCase):
-
     def setUp(self):
-        self.m = manager.PluginManager([
-            mock.Mock(),
-            mock.Mock(),
-        ])
+        self.m = manager.PluginManager([mock.Mock(), mock.Mock()])
 
     def test_first(self):
         self.m._plugins[0].x.return_value = 1
 
-        self.assertEqual(1, self.m.first('x', 'a'))
+        self.assertEqual(1, self.m.first("x", "a"))
         self.assertFalse(self.m._plugins[1].called)
-        self.assertTrue(self.m._plugins[0].called_with('a'))
+        self.assertTrue(self.m._plugins[0].called_with("a"))
 
     def test_pipe(self):
         def plus_one(x):
             return x + 1
+
         self.m._plugins[0].x.side_effect = plus_one
         self.m._plugins[1].x.side_effect = plus_one
 
-        self.assertEqual(3, self.m.pipe('x', 1))
+        self.assertEqual(3, self.m.pipe("x", 1))
 
     def test_call(self):
-        results = self.m.call('x', 1)
-        self.assertTrue(self.m._plugins[0].called_with('a'))
+        results = self.m.call("x", 1)
+        self.assertTrue(self.m._plugins[0].called_with("a"))
         self.assertTrue(self.m._plugins[1].x.called_with(1))
 
     def test_produce(self):
@@ -272,5 +273,6 @@ class PluginManagerTestCase(unittest.TestCase):
         assert products[1] is self.m._plugins[1].return_value
         self.m._plugins[1].called_with(1, 2)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

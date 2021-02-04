@@ -1,5 +1,4 @@
 class PluginManager(object):
-
     def __init__(self, plugins):
         self._plugins = plugins
 
@@ -59,4 +58,3 @@ class PluginManager(object):
             if r is not None:
                 first_arg = r
         return r
-
