@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="straight.plugin",
-    version="1.4.1",
+    version="1.4.2",
     description="A simple namespaced plugin facility",
     author="Calvin Spealman",
     author_email="ironfroggy@gmail.com",
