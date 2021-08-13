@@ -83,3 +83,21 @@ load all the objects from the modules, rather than the modules themselves.
     plugins = ObjectLoader().load('myplugins')
 
 
+Handling Import Errors
+----------------------
+
+If import errors are encountered while loading plugins, they are
+captured and plugin loading continues. These exceptions can be 
+retrieved from the object returned by ``load()``.
+
+Example:
+
+::
+
+    from straight.plugin import load
+
+    plugins = load('myplugins')
+    
+    if plugins.has_exceptions():
+        plugin_exceptions = plugins.exceptions()
+        print(plugin_exceptions)

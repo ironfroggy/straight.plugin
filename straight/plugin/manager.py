@@ -1,6 +1,7 @@
 class PluginManager(object):
-    def __init__(self, plugins):
+    def __init__(self, plugins, exceptions):
         self._plugins = plugins
+        self._exceptions = exceptions
 
     def __iter__(self):
         return iter(self._plugins)
@@ -20,7 +21,7 @@ class PluginManager(object):
         for p in self._plugins:
             r = p(*args, **kwargs)
             new_plugins.append(r)
-        return PluginManager(new_plugins)
+        return PluginManager(new_plugins, exceptions = [])
 
     def call(self, methodname, *args, **kwargs):
         """Call a common method on all the plugins, if it exists."""
@@ -58,3 +59,9 @@ class PluginManager(object):
             if r is not None:
                 first_arg = r
         return r
+
+    def exceptions(self):
+        return self._exceptions
+
+    def has_exceptions(self):
+        return len(self._exceptions) > 0

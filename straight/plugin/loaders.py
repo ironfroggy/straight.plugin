@@ -22,6 +22,7 @@ class Loader(object):
     def __init__(self, *args, **kwargs):
         self._cache = []
         self.loaded = False
+        self._exceptions = []
 
     def _fill_cache(self, *args, **kwargs):
         raise NotImplementedError()
@@ -32,7 +33,7 @@ class Loader(object):
             self._post_fill()
             self._order()
             self.loaded = True
-        return PluginManager(self._cache)
+        return PluginManager(self._cache, self._exceptions)
 
     def _meta(self, plugin):
         meta = getattr(plugin, "__plugin__", None)
@@ -114,9 +115,8 @@ class ModuleLoader(Loader):
 
             try:
                 module = import_module(import_path)
-            except ImportError:
-                # raise Exception(import_path)
-
+            except ImportError as import_error:
+                self._exceptions.append(import_error)
                 module = None
 
             if module is not None:
@@ -151,6 +151,7 @@ class ObjectLoader(Loader):
                     objects.append(getattr(module, attr_name))
 
         self._cache = objects
+        self._exceptions = modules.exceptions()
         return objects
 
 

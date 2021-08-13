@@ -124,6 +124,7 @@ class ObjectLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
     paths = (
         os.path.join(os.path.dirname(__file__), "test-packages", "more-test-plugins"),
         os.path.join(os.path.dirname(__file__), "test-packages", "some-test-plugins"),
+        os.path.join(os.path.dirname(__file__), "test-packages", "import-error-test-plugins"),
     )
 
     def setUp(self):
@@ -131,8 +132,10 @@ class ObjectLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
         super(ObjectLoaderTestCase, self).setUp()
 
     def test_load_all(self):
-        objects = list(self.loader.load("testplugin"))
+        plugins = self.loader.load("testplugin")
+        objects = list(plugins)
         self.assertEqual(len(objects), 2, str(objects)[:100] + " ...")
+        self.assertEqual(len(plugins.exceptions()), 1)
 
 
 class ClassLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
@@ -243,7 +246,7 @@ class RecursingPackageLoaderTestCase(LoaderTestCaseMixin, unittest.TestCase):
 
 class PluginManagerTestCase(unittest.TestCase):
     def setUp(self):
-        self.m = manager.PluginManager([mock.Mock(), mock.Mock()])
+        self.m = manager.PluginManager([mock.Mock(), mock.Mock()], [])
 
     def test_first(self):
         self.m._plugins[0].x.return_value = 1
@@ -261,7 +264,7 @@ class PluginManagerTestCase(unittest.TestCase):
         self.assertEqual(3, self.m.pipe("x", 1))
 
     def test_pipe_no_plugins_found(self):
-        no_plugins = manager.PluginManager([])
+        no_plugins = manager.PluginManager([], [])
         self.assertEqual(1, no_plugins.pipe("x", 1))
 
     def test_call(self):
@@ -276,6 +279,10 @@ class PluginManagerTestCase(unittest.TestCase):
         assert products[1] is self.m._plugins[1].return_value
         self.m._plugins[1].called_with(1, 2)
 
+    def test_exceptions(self):
+        encountered_exceptions = manager.PluginManager([], [mock.Mock()])
+        self.assertTrue(encountered_exceptions.has_exceptions())
+        self.assertEqual(len(encountered_exceptions.exceptions()), 1)
 
 if __name__ == "__main__":
     unittest.main()
