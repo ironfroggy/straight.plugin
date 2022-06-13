@@ -4,7 +4,6 @@ import os
 import sys
 
 from functools import lru_cache
-from imp import find_module
 from importlib import import_module
 
 from straight.plugin.manager import PluginManager
